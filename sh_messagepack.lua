@@ -1,10 +1,12 @@
 
+--[[
+    gmod-messagepack, an edit of lua-MessagePack (https://fperrad.frama.io/lua-MessagePack/).
+    Original code by François Perrad, edited by Tom.bat for use in Garry's Mod.
+--]]
+
 messagePack = {}
 
---
--- lua-MessagePack : <https://fperrad.frama.io/lua-MessagePack/>
---
-local SIZEOF_NUMBER = string.pack and #string.pack("n", 0.0) or 8
+local SIZEOF_NUMBER = 8
 local maxinteger
 local mininteger
 local assert = assert
