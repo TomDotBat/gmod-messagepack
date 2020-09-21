@@ -5,6 +5,7 @@
 --]]
 
 messagePack = {}
+messagePack.__index = messagePack
 
 local SIZEOF_NUMBER = 8
 local maxinteger
@@ -842,3 +843,7 @@ else
 end
 
 set_array("without_hole")
+
+function messagePack.new()
+    return setmetatable({}, messagePack)
+end
