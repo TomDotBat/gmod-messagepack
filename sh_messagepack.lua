@@ -405,6 +405,62 @@ packers["ext"] = function(buffer, tag, data)
     buffer[#buffer + 1] = data
 end
 
+local concat = table.concat
+
+local EXT_ENTITY  = 1
+local EXT_PLAYER  = 2
+local EXT_VECTOR  = 3
+local EXT_ANGLE   = 4
+local EXT_COLOR   = 5
+
+local tempBuffer = {}
+packers["Entity"] = function(buffer, ent)
+    packers["number"](tempBuffer, ent:EntIndex())
+    packers["ext"](buffer, EXT_ENTITY, tempBuffer[1])
+end
+
+packers["PhysObj"] = packers["Entity"]
+packers["Weapon"] = packers["Entity"]
+packers["Vehicle"] = packers["Entity"]
+packers["NPC"] = packers["Entity"]
+packers["NextBot"] = packers["Entity"]
+
+packers["Player"] = function(buffer, ply)
+    packers["number"](tempBuffer, ply:UserID())
+    packers["ext"](buffer, EXT_PLAYER, tempBuffer[1])
+end
+
+local vectorBuffer = {}
+packers["Vector"] = function(buffer, vec)
+	vectorBuffer[1] = vec[1]
+	vectorBuffer[2] = vec[2]
+	vectorBuffer[3] = vec[3]
+    vectorBuffer[4] = nil
+    
+	packers["_table"](tempBuffer, vectorBuffer)
+	packers["ext"](buffer, EXT_VECTOR, concat(tempBuffer))
+end
+
+packers["Angle"] = function(buffer, ang)
+	vectorBuffer[1] = ang[1]
+	vectorBuffer[2] = ang[2]
+	vectorBuffer[3] = ang[3]
+    vectorBuffer[4] = nil
+
+	packers["_table"](tempBuffer, vectorBuffer)
+	packers["ext"](buffer, EXT_ANGLE, concat(tempBuffer))
+end
+
+packers["Color"] = function(buffer, col)
+	vectorBuffer[1] = col.r
+	vectorBuffer[2] = col.g
+	vectorBuffer[3] = col.b
+	vectorBuffer[4] = col.a
+
+	packers["_table"](buf, vectorBuffer)
+	packers["ext"](buffer, EXT_COLOR, concat(tempBuffer))
+end
+
 function messagePack.pack(data)
     local buffer = {}
     packers[type(data)](buffer, data)
@@ -678,8 +734,34 @@ local function unpack_int64(c)
     end
 end
 
+local Entity = Entity
+local Player = Player
+local Color = Color
+local Vector = Vector
+local Angle = Angle
+
+local gmodUnpackers = {
+	[EXT_ENTITY] = function(value)
+		return Entity(value)
+	end,
+	[EXT_PLAYER] = function(value)
+		return Player(value)
+	end,
+	[EXT_VECTOR] = function(value)
+		return Vector(value[1], value[2], value[3])
+	end,
+	[EXT_ANGLE] = function(value)
+		return Angle(value[1], value[2], value[3])
+	end,
+	[EXT_COLOR] = function(value)
+		return Color(value[1], value[2], value[3], value[4])
+	end
+}
+
 function messagePack.build_ext(tag, data)
-    return nil
+    local func = messagePack.unpacker(data)
+    local _, val = func()
+    return gmodUnpackers[tag](val)
 end
 
 local function unpack_ext(c, n, tag)
@@ -694,7 +776,7 @@ local function unpack_ext(c, n, tag)
 
     c.i = i + n
 
-    return m.build_ext(tag, s:sub(i, e))
+    return messagePack.build_ext(tag, s:sub(i, e))
 end
 
 unpackers = setmetatable({
