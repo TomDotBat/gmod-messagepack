@@ -26,6 +26,13 @@ local ldexp = math.ldexp
 local huge = math.huge
 local tconcat = table.concat
 
+local oldType = type
+local isColor = IsColor
+local function type(var)
+    if isColor(var) then return "Color" end
+    return oldType(var)
+end
+
 local function argerror(caller, narg, extramsg)
     error("bad argument #" .. tostring(narg) .. " to " .. caller .. " (" .. extramsg .. ")")
 end
