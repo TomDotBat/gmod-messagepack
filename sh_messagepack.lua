@@ -405,8 +405,6 @@ packers["ext"] = function(buffer, tag, data)
     buffer[#buffer + 1] = data
 end
 
-local concat = table.concat
-
 local EXT_ENTITY  = 1
 local EXT_PLAYER  = 2
 local EXT_VECTOR  = 3
@@ -435,10 +433,10 @@ packers["Vector"] = function(buffer, vec)
 	vectorBuffer[1] = vec[1]
 	vectorBuffer[2] = vec[2]
 	vectorBuffer[3] = vec[3]
-    vectorBuffer[4] = nil
+    	vectorBuffer[4] = nil
     
 	packers["_table"](tempBuffer, vectorBuffer)
-	packers["ext"](buffer, EXT_VECTOR, concat(tempBuffer))
+	packers["ext"](buffer, EXT_VECTOR, tconcat(tempBuffer))
 end
 
 packers["Angle"] = function(buffer, ang)
@@ -448,7 +446,7 @@ packers["Angle"] = function(buffer, ang)
     vectorBuffer[4] = nil
 
 	packers["_table"](tempBuffer, vectorBuffer)
-	packers["ext"](buffer, EXT_ANGLE, concat(tempBuffer))
+	packers["ext"](buffer, EXT_ANGLE, tconcat(tempBuffer))
 end
 
 packers["Color"] = function(buffer, col)
@@ -457,8 +455,8 @@ packers["Color"] = function(buffer, col)
 	vectorBuffer[3] = col.b
 	vectorBuffer[4] = col.a
 
-	packers["_table"](buf, vectorBuffer)
-	packers["ext"](buffer, EXT_COLOR, concat(tempBuffer))
+	packers["_table"](tempBuffer, vectorBuffer)
+	packers["ext"](buffer, EXT_COLOR, tconcat(tempBuffer))
 end
 
 function messagePack.pack(data)
