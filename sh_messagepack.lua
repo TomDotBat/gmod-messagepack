@@ -411,8 +411,8 @@ local EXT_VECTOR  = 3
 local EXT_ANGLE   = 4
 local EXT_COLOR   = 5
 
-local tempBuffer = {}
 packers["Entity"] = function(buffer, ent)
+    local tempBuffer = {}
     packers["number"](tempBuffer, ent:EntIndex())
     packers["ext"](buffer, EXT_ENTITY, tempBuffer[1])
 end
@@ -424,39 +424,43 @@ packers["NPC"] = packers["Entity"]
 packers["NextBot"] = packers["Entity"]
 
 packers["Player"] = function(buffer, ply)
+    local tempBuffer = {}
     packers["number"](tempBuffer, ply:UserID())
     packers["ext"](buffer, EXT_PLAYER, tempBuffer[1])
 end
 
 local vectorBuffer = {}
 packers["Vector"] = function(buffer, vec)
-	vectorBuffer[1] = vec[1]
-	vectorBuffer[2] = vec[2]
-	vectorBuffer[3] = vec[3]
-    	vectorBuffer[4] = nil
-    
-	packers["_table"](tempBuffer, vectorBuffer)
-	packers["ext"](buffer, EXT_VECTOR, tconcat(tempBuffer))
+    vectorBuffer[1] = vec[1]
+    vectorBuffer[2] = vec[2]
+    vectorBuffer[3] = vec[3]
+    vectorBuffer[4] = nil
+
+    local tempBuffer = {}
+    packers["_table"](tempBuffer, vectorBuffer)
+    packers["ext"](buffer, EXT_VECTOR, tconcat(tempBuffer))
 end
 
 packers["Angle"] = function(buffer, ang)
-	vectorBuffer[1] = ang[1]
-	vectorBuffer[2] = ang[2]
-	vectorBuffer[3] = ang[3]
+    vectorBuffer[1] = ang[1]
+    vectorBuffer[2] = ang[2]
+    vectorBuffer[3] = ang[3]
     vectorBuffer[4] = nil
 
-	packers["_table"](tempBuffer, vectorBuffer)
-	packers["ext"](buffer, EXT_ANGLE, tconcat(tempBuffer))
+    local tempBuffer = {}
+    packers["_table"](tempBuffer, vectorBuffer)
+    packers["ext"](buffer, EXT_ANGLE, tconcat(tempBuffer))
 end
 
 packers["Color"] = function(buffer, col)
-	vectorBuffer[1] = col.r
-	vectorBuffer[2] = col.g
-	vectorBuffer[3] = col.b
-	vectorBuffer[4] = col.a
+    vectorBuffer[1] = col.r
+    vectorBuffer[2] = col.g
+    vectorBuffer[3] = col.b
+    vectorBuffer[4] = col.a
 
-	packers["_table"](tempBuffer, vectorBuffer)
-	packers["ext"](buffer, EXT_COLOR, tconcat(tempBuffer))
+    local tempBuffer = {}
+    packers["_table"](tempBuffer, vectorBuffer)
+    packers["ext"](buffer, EXT_COLOR, tconcat(tempBuffer))
 end
 
 function messagePack.pack(data)
